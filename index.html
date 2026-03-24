@@ -2,273 +2,557 @@
 <html lang="ru">
 <head>
 <meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Мария &amp; Александр — Приглашение</title>
 <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600;700&family=Nunito:wght@400;600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet"/>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
-  --bg:#fff7ea;--red:#93001d;--red-dark:#740f22;
-  --pink:#efc3c2;--cream:#f4efe5;--text:#4A3728;
+  --red:#8B1A1A;--red-bright:#C41E3A;--bg-outer:#6B1520;
+  --cream:#FDF5EC;--cream-dark:#F5EDE3;--text:#4A3728;--text-light:#6B5B4E;
 }
-html{overflow:hidden}
+html{scroll-behavior:smooth;overflow:hidden}
 html.unlocked{overflow:auto}
-body{background:var(--bg);font-family:'Nunito',sans-serif;color:var(--text);overflow-x:hidden}
+body{background:var(--bg-outer);font-family:'Nunito',sans-serif;color:var(--text);overflow-x:hidden}
+.caveat{font-family:'Caveat',cursive}
 
 /* === ENVELOPE SCREEN === */
 .env-screen{
-  position:fixed;inset:0;z-index:100;
-  background:var(--bg);
+  position:fixed;inset:0;z-index:1000;
+  background:#fff7ea;
   display:flex;flex-direction:column;align-items:center;justify-content:center;
-  cursor:pointer;
 }
-.env-screen.gone{pointer-events:none;z-index:-1}
+.env-screen.fade-out{opacity:0;transition:opacity .5s ease .2s}
+.env-screen.gone{display:none}
 
-/* Envelope container */
-.env{
-  position:relative;width:320px;height:260px;
-  margin:0 auto;
-}
+/* Envelope wrapper */
+.env-wrap{position:relative;width:320px;height:300px}
 
-/* Envelope parts — using CSS to replicate paper envelope */
-.env-body{
-  position:absolute;bottom:0;left:0;width:320px;height:200px;
-  background:linear-gradient(170deg,#e8dece 0%,#ddd0be 50%,#d4c7b3 100%);
-  border-radius:3px;
-  box-shadow:0 4px 20px rgba(0,0,0,.1);
-  transition:transform 1s cubic-bezier(.4,0,.2,1), opacity .15s ease 1s;
-}
+/* All envelope parts are images positioned absolutely */
+.env-part{position:absolute;transition:transform 1.1s cubic-bezier(.4,0,.2,1),opacity .15s ease 1s}
 
-/* Side fold left */
-.env-fold-l{
-  position:absolute;bottom:0;left:0;
-  width:0;height:0;
-  border-top:100px solid transparent;
-  border-bottom:100px solid transparent;
-  border-left:160px solid #ddd2c2;
-  z-index:2;
-  transition:transform 1s cubic-bezier(.4,0,.2,1);
-}
-
-/* Side fold right */
-.env-fold-r{
-  position:absolute;bottom:0;right:0;
-  width:0;height:0;
-  border-top:100px solid transparent;
-  border-bottom:100px solid transparent;
-  border-right:160px solid #d8ccba;
-  z-index:2;
-  transition:transform 1s cubic-bezier(.4,0,.2,1);
-}
-
-/* Bottom fold */
-.env-fold-b{
-  position:absolute;bottom:0;left:0;
-  width:0;height:0;
-  border-left:160px solid transparent;
-  border-right:160px solid transparent;
-  border-bottom:110px solid #d0c4b0;
-  z-index:3;
-}
-
-/* Top flap */
-.env-flap{
-  position:absolute;top:0;left:0;
-  width:0;height:0;
-  border-left:160px solid transparent;
-  border-right:160px solid transparent;
-  border-top:140px solid #e5dccc;
-  z-index:6;
-  filter:drop-shadow(0 3px 4px rgba(0,0,0,.08));
-  transition:transform 1.2s cubic-bezier(.4,0,.2,1);
-  transform-origin:top center;
-}
-
-/* Letter inside */
-.env-letter{
-  position:absolute;left:20px;right:20px;top:80px;bottom:20px;
-  background:white;z-index:1;border-radius:2px;
-  box-shadow:0 1px 6px rgba(0,0,0,.06);
-  display:flex;align-items:center;justify-content:center;
-  transition:transform 1.2s cubic-bezier(.4,0,.2,1);
-}
-.env-letter-text{
-  font-family:'Playfair Display',serif;color:var(--red);
-  font-size:18px;text-align:center;line-height:1.4;font-style:italic;
-}
-
-/* Wax seal */
+/* Flap — top triangle image */
+.env-flap{top:-20px;left:0;width:320px;z-index:6}
+/* Body/pocket — bottom part */
+.env-body{top:140px;left:0;width:320px;z-index:4}
+/* Left fold */
+.env-fold-l{top:10px;left:0;width:160px;z-index:3}
+/* Right fold */
+.env-fold-r{top:10px;left:160px;width:160px;z-index:3}
+/* Seal */
 .env-seal{
-  position:absolute;top:50%;left:50%;
-  transform:translate(-50%,-50%);z-index:10;
-  width:90px;height:90px;
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  width:100px;z-index:10;cursor:pointer;
+  transition:transform 1.2s cubic-bezier(.4,0,.2,1);
+  filter:drop-shadow(0 4px 12px rgba(0,0,0,.25));
+}
+.env-seal:active{transform:translate(-50%,-50%) scale(.92)}
+
+/* Letter peek */
+.env-letter{
+  position:absolute;left:24px;right:24px;top:60px;height:180px;
+  background:white;z-index:1;border-radius:3px;
+  box-shadow:0 2px 8px rgba(0,0,0,.06);
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Playfair Display','Caveat',cursive;color:var(--red);font-size:18px;
+  text-align:center;line-height:1.4;font-style:italic;
   transition:transform 1.2s cubic-bezier(.4,0,.2,1);
 }
-.seal-circle{
-  width:90px;height:90px;border-radius:50%;
-  background:radial-gradient(circle at 40% 35%,#a02030,#7a1525 60%,#5a0e1a);
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  box-shadow:0 4px 16px rgba(0,0,0,.25),inset 0 2px 4px rgba(255,255,255,.15);
-  border:3px solid #f4efe5;
-  border-style:dotted;
-}
-.seal-circle span{
-  font-family:'Caveat',cursive;color:#f4efe5;font-size:16px;font-weight:600;line-height:1.2;
-}
 
-/* OPEN STATES */
-.env.open .env-flap{transform:translateY(-400px)}
-.env.open .env-seal{transform:translate(-50%,-50%) translateY(-400px)}
-.env.open .env-fold-l{transform:translateX(-170px)}
-.env.open .env-fold-r{transform:translateX(170px)}
-.env.open .env-body{transform:translateY(380px);opacity:0}
-.env.open .env-fold-b{transform:translateY(380px)}
-.env.open .env-letter{transform:translateY(-280px)}
-
-/* Envelope title */
-.env-title{
-  font-family:'Playfair Display',serif;font-style:italic;
-  color:var(--red);font-size:34px;font-weight:400;
-  margin-bottom:40px;text-align:center;
-}
+/* Open animation states */
+.env-wrap.open .env-flap{transform:translateY(-400px)}
+.env-wrap.open .env-seal{transform:translate(-50%,-50%) translateY(-400px)}
+.env-wrap.open .env-fold-l{transform:translateX(-170px)}
+.env-wrap.open .env-fold-r{transform:translateX(170px)}
+.env-wrap.open .env-body{transform:translateY(380px);opacity:0}
+.env-wrap.open .env-letter{transform:translateY(-250px)}
 
 /* Envelope labels */
-.env-labels{
-  margin-top:48px;padding:0 40px;width:320px;
-}
-.env-label-line{
-  margin-bottom:10px;display:flex;align-items:baseline;gap:6px;
-}
-.env-label-line .label-key{
-  font-family:'Nunito',sans-serif;font-size:14px;color:var(--text);opacity:.6;
-}
-.env-label-line .label-val{
+.env-labels{margin-top:52px;width:280px}
+.env-lbl{margin-bottom:8px;display:flex;align-items:baseline;gap:6px}
+.env-lbl-key{font-size:14px;color:var(--text);opacity:.5}
+.env-lbl-val{
   font-family:'Playfair Display',serif;font-style:italic;
   font-size:20px;color:var(--red);
-  border-bottom:1px solid rgba(147,0,29,.3);
-  padding-bottom:2px;
+  border-bottom:1px solid rgba(147,0,29,.25);padding-bottom:2px;
 }
 
-/* Fade out envelope screen */
-.env-screen.fade-out{
-  opacity:0;
-  transition:opacity .6s ease .3s;
+/* Title above envelope */
+.env-title{
+  font-family:'Playfair Display',serif;font-style:italic;
+  color:var(--red);font-size:34px;margin-bottom:36px;
 }
 
-/* === MAIN CONTENT === */
-.main-content{opacity:0;transition:opacity .8s ease}
-.main-content.show{opacity:1}
+/* Main page hidden until envelope opens */
+.page-content{opacity:0;transition:opacity .6s ease}
+.page-content.show{opacity:1}
 
-/* Desktop fallback */
-@media(min-width:481px){
-  .env-screen-desktop{
-    position:fixed;inset:0;z-index:200;
-    background:var(--red-dark);
-    display:flex;align-items:center;justify-content:center;
-    flex-direction:column;gap:20px;
-  }
-  .env-screen-desktop p{
-    font-family:'Playfair Display',serif;font-style:italic;
-    color:var(--cream);font-size:28px;text-align:center;padding:0 40px;
-  }
+/* Main cream panel */
+.panel{
+  max-width:420px;margin:0 auto;background:var(--cream);
+  position:relative;min-height:100vh;
+  padding:0 24px 40px;
+  box-shadow:0 0 80px rgba(0,0,0,.3);
 }
-@media(max-width:480px){.env-screen-desktop{display:none!important}}
+@media(max-width:430px){.panel{max-width:100%;box-shadow:none}}
+
+/* Paper texture overlay */
+.panel::before{
+  content:'';position:absolute;inset:0;pointer-events:none;z-index:1;opacity:.03;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size:150px;
+}
+.panel>*{position:relative;z-index:2}
+
+/* Reveal animations */
+.reveal{opacity:0;transform:translateY(24px);transition:all .7s cubic-bezier(.22,1,.36,1)}
+.reveal.visible{opacity:1;transform:none}
+
+/* Red heading style */
+.red-title{font-family:'Caveat',cursive;color:var(--red);text-align:center;line-height:1.2}
+
+/* Wavy underline */
+.wavy-underline{
+  display:inline-block;position:relative;
+}
+.wavy-underline::after{
+  content:'';position:absolute;bottom:-6px;left:-4px;right:-4px;height:8px;
+  background:url("data:image/svg+xml,%3Csvg width='120' height='8' viewBox='0 0 120 8' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 4 Q10 0 20 4 T40 4 T60 4 T80 4 T100 4 T120 4' fill='none' stroke='%238B1A1A' stroke-width='2'/%3E%3C/svg%3E") repeat-x;
+  background-size:60px 8px;
+}
+
+/* Doodle photo frame — rough hand-drawn feel */
+.doodle-frame{
+  border:3px solid var(--red);border-radius:2px;
+  box-shadow:3px 3px 0 var(--red),-1px -1px 0 var(--red);
+  position:relative;overflow:visible;
+}
+.doodle-frame::before{
+  content:'';position:absolute;inset:-6px;border:2px solid var(--red);border-radius:3px;
+  opacity:.3;transform:rotate(.5deg);pointer-events:none;z-index:5;
+}
+.doodle-frame img{display:block}
+
+/* Dashed circle photo with hand-drawn double outline */
+.dashed-circle{
+  border:3px dashed var(--red);border-radius:50%;overflow:hidden;
+  position:relative;
+  box-shadow:0 0 0 3px var(--cream),0 0 0 5px var(--red);
+}
+
+/* Scattered deco heart helper */
+.h{position:absolute;pointer-events:none;z-index:10}
+.h svg{display:block}
+
+/* Heart SVG inline */
+.heart{color:var(--red);display:inline-block}
+.heart-float{animation:floatH 3s ease-in-out infinite}
+@keyframes floatH{
+  0%,100%{transform:translateY(0) rotate(0deg)}
+  50%{transform:translateY(-8px) rotate(5deg)}
+}
+
+/* Brushstroke ribbon — messy painted feel */
+.ribbon{
+  background:var(--red-bright);color:white;position:relative;
+  padding:12px 36px;display:inline-block;
+  font-family:'Caveat',cursive;font-size:22px;font-weight:700;
+  transform:rotate(-2deg);
+  clip-path:polygon(2% 15%,8% 0%,15% 12%,25% 2%,40% 8%,55% 0%,70% 5%,85% 0%,95% 10%,100% 25%,98% 50%,100% 75%,96% 90%,90% 100%,75% 95%,60% 100%,45% 92%,30% 100%,15% 95%,5% 100%,0% 85%,2% 60%);
+}
+
+/* Calendar */
+.cal{border-collapse:collapse;font-size:12px;margin:0 auto}
+.cal th{background:var(--red);color:white;padding:4px 6px;font-weight:600;font-size:11px}
+.cal td{padding:4px 6px;text-align:center;font-size:12px;color:var(--text)}
+.cal .today{background:var(--red-bright);color:white;border-radius:50%;font-weight:700}
+.cal .month-header{background:var(--red);color:white;font-family:'Caveat',cursive;font-size:16px;font-weight:600;padding:6px;text-align:center}
+
+/* Timeline wavy line */
+.timeline-line{
+  position:absolute;left:24px;top:0;bottom:0;width:40px;
+}
+/* Timeline dots removed — replaced by animated ring traveling down the line */
+.timeline-dot{display:none}
+
+/* Ring that slides down the timeline */
+.timeline-ring{
+  position:absolute;left:14px;top:0;z-index:10;
+  width:20px;height:20px;
+  animation:slideDown 8s ease-in-out infinite;
+}
+@keyframes slideDown{
+  0%{top:0;opacity:0}
+  5%{opacity:1}
+  95%{opacity:1}
+  100%{top:calc(100% - 24px);opacity:0}
+}
+
+/* Countdown oval frame */
+.countdown-frame{
+  border:3px solid var(--red);border-radius:50% 48% 52% 46% / 30% 32% 28% 34%;
+  padding:16px 12px;display:inline-block;
+}
+
+/* Photo strip */
+.photo-strip{display:flex;flex-direction:column;gap:6px;align-items:center}
+.photo-strip img{border:3px solid var(--red);border-radius:3px}
+
+/* Scattered heart decorations */
+.deco-hearts{position:absolute;pointer-events:none;z-index:3}
 
 @media(prefers-reduced-motion:reduce){
-  *{transition-duration:.01ms!important;animation-duration:.01ms!important}
+  *,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}
 }
 </style>
 </head>
 <body>
 
-<!-- Desktop: show message -->
-<div class="env-screen-desktop">
-  <p>Пожалуйста, откройте<br/>приглашение с телефона</p>
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M12 16l-6-6h12l-6 6z" fill="#f4efe5"/></svg>
-</div>
-
-<!-- ENVELOPE SCREEN (mobile) -->
-<div class="env-screen" id="envScreen">
+<!-- ENVELOPE SCREEN -->
+<div class="env-screen" id="envScreen" onclick="openEnvelope()">
   <p class="env-title">Вам письмо!</p>
 
-  <div class="env" id="env">
-    <!-- Letter (behind everything) -->
-    <div class="env-letter">
-      <p class="env-letter-text">Приглашение<br/>на свадьбу ♥</p>
-    </div>
+  <div class="env-wrap" id="envWrap">
+    <!-- Letter peeking inside -->
+    <div class="env-letter">Приглашение<br/>на свадьбу ♥</div>
 
-    <!-- Envelope body -->
-    <div class="env-body"></div>
-
-    <!-- Bottom fold -->
-    <div class="env-fold-b"></div>
-
-    <!-- Side folds -->
-    <div class="env-fold-l"></div>
-    <div class="env-fold-r"></div>
-
-    <!-- Top flap -->
-    <div class="env-flap"></div>
+    <!-- Envelope parts (Tilda CDN images for realistic look) -->
+    <img class="env-part env-flap" src="https://static.tildacdn.com/tild6261-3635-4365-b336-313739376135/-min.png" alt=""/>
+    <img class="env-part env-body" src="https://static.tildacdn.com/tild3835-3433-4030-a330-383534343565/-min_2.png" alt=""/>
+    <img class="env-part env-fold-l" src="https://static.tildacdn.com/tild3336-3136-4661-b365-643566653637/-min.png" alt=""/>
+    <img class="env-part env-fold-r" src="https://static.tildacdn.com/tild6365-6334-4331-a330-613265643265/-min.png" alt=""/>
 
     <!-- Wax seal -->
-    <div class="env-seal" id="envSeal">
-      <div class="seal-circle">
-        <span>Нажми</span>
-        <span>сюда</span>
-      </div>
-    </div>
+    <img class="env-seal" id="envSeal" src="https://static.tildacdn.com/tild6636-3732-4439-b066-383431646364/Frame_1000004905-min.png" alt="Нажми сюда"/>
   </div>
 
   <div class="env-labels">
-    <div class="env-label-line">
-      <span class="label-key">Для:</span>
-      <span class="label-val">Родных и близких</span>
+    <div class="env-lbl">
+      <span class="env-lbl-key">Для:</span>
+      <span class="env-lbl-val">Родных и близких</span>
     </div>
-    <div class="env-label-line">
-      <span class="label-key">От:</span>
-      <span class="label-val">Марии и Александра</span>
+    <div class="env-lbl">
+      <span class="env-lbl-key">От:</span>
+      <span class="env-lbl-val">Марии и Александра</span>
     </div>
   </div>
 </div>
 
-<!-- MAIN INVITATION CONTENT -->
-<div class="main-content" id="mainContent">
-<!-- Здесь будет основной контент приглашения -->
-<div style="max-width:420px;margin:0 auto;background:#FDF5EC;min-height:100vh;padding:40px 24px;box-shadow:0 0 80px rgba(0,0,0,.1);text-align:center">
-  <p style="font-family:'Playfair Display',serif;font-style:italic;color:#93001d;font-size:28px;margin-bottom:24px">Дорогие друзья<br/>и родные!</p>
-  <p style="font-size:15px;line-height:1.6;color:#4A3728;max-width:300px;margin:0 auto 32px">Скоро состоится очень важное и радостное для нас событие. Этот день невозможно представить без самых близких для нас людей, мы бы очень хотели, чтобы вы провели его <strong>вместе с нами!</strong></p>
-  <div style="width:120px;height:2px;background:rgba(147,0,29,.2);margin:0 auto 32px"></div>
-  <p style="font-family:'Caveat',cursive;color:#93001d;font-size:32px;font-weight:600">Мария &amp; Александр</p>
-  <p style="font-family:'Playfair Display',serif;font-style:italic;color:#93001d;font-size:20px;margin-top:8px">15 сентября 2026</p>
-  <div style="margin-top:40px;font-size:14px;color:#8b7d6b">↓ Листайте вниз ↓</div>
-</div>
-</div>
+<!-- Top spacing on red background -->
+<div style="height:20px"></div>
+
+<!-- MAIN CREAM PANEL (hidden until envelope opens) -->
+<div class="panel page-content" id="pageContent">
+
+  <!-- SECTION 1: Hero -->
+  <section class="reveal" style="padding-top:32px;text-align:center">
+    <h2 class="red-title" style="font-size:38px;font-weight:700;margin-bottom:4px;line-height:1.1">
+      <span class="wavy-underline">Машка + Сашка</span><br/>= любовь
+    </h2>
+
+    <!-- Scattered hearts -->
+    <div style="position:relative;height:0">
+      <svg class="heart-float" style="position:absolute;top:-60px;left:10px" width="24" height="22" viewBox="0 0 24 22"><path d="M12 21C12 21 1 13 1 6.5C1 3 3.5 1 6.5 1C8.5 1 10.5 2.5 12 4.5C13.5 2.5 15.5 1 17.5 1C20.5 1 23 3 23 6.5C23 13 12 21 12 21Z" fill="#C41E3A" stroke="#8B1A1A" stroke-width="1"/></svg>
+      <svg class="heart-float" style="position:absolute;top:-80px;right:20px;animation-delay:.4s" width="18" height="17" viewBox="0 0 24 22"><path d="M12 21C12 21 1 13 1 6.5C1 3 3.5 1 6.5 1C8.5 1 10.5 2.5 12 4.5C13.5 2.5 15.5 1 17.5 1C20.5 1 23 3 23 6.5C23 13 12 21 12 21Z" fill="#C41E3A" stroke="#8B1A1A" stroke-width="1"/></svg>
+      <svg class="heart-float" style="position:absolute;top:-30px;right:40px;animation-delay:.8s" width="14" height="13" viewBox="0 0 24 22"><path d="M12 21C12 21 1 13 1 6.5C1 3 3.5 1 6.5 1C8.5 1 10.5 2.5 12 4.5C13.5 2.5 15.5 1 17.5 1C20.5 1 23 3 23 6.5C23 13 12 21 12 21Z" fill="none" stroke="#8B1A1A" stroke-width="2"/></svg>
+      <svg class="heart-float" style="position:absolute;top:-50px;left:50px;animation-delay:1.2s" width="16" height="15" viewBox="0 0 24 22"><path d="M12 21C12 21 1 13 1 6.5C1 3 3.5 1 6.5 1C8.5 1 10.5 2.5 12 4.5C13.5 2.5 15.5 1 17.5 1C20.5 1 23 3 23 6.5C23 13 12 21 12 21Z" fill="#C41E3A" stroke="#8B1A1A" stroke-width="1"/></svg>
+      <svg style="position:absolute;top:-20px;left:30px" width="12" height="11" viewBox="0 0 24 22"><path d="M12 21C12 21 1 13 1 6.5C1 3 3.5 1 6.5 1C8.5 1 10.5 2.5 12 4.5C13.5 2.5 15.5 1 17.5 1C20.5 1 23 3 23 6.5C23 13 12 21 12 21Z" fill="none" stroke="#C41E3A" stroke-width="2"/></svg>
+    </div>
+
+    <!-- Two portrait photos -->
+    <div style="display:flex;justify-content:center;gap:16px;margin:24px 0 8px;position:relative">
+      <!-- Label: жених -->
+      <span class="caveat" style="position:absolute;left:-2px;top:50%;transform:rotate(-90deg) translateX(-50%);color:var(--red);font-size:16px;font-weight:600">жених</span>
+      <div class="dashed-circle" style="width:120px;height:120px">
+        <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuCMnjbnqDF5mwbakhXtgBOOo_WaCHYfEAmla4d7U1pUdwJnDgH1ME0xfMbx0Kml2XBJb0KLCPq0N7VYsXG_ZW4U3NPp7W-nQiosw_7nZauFxXlrFi7XyNObl98yqjiC81c3kX_csWOrwZsEujDc5Ym-QSSZG1FxpLNsugsbdRAhV9V2bbauf4-g7Adoj37N85Nk1CLWJ-GsaYN4rEhIRRqbnoUplTkYqAO0-pUxEZLs8968AO0hETB36MZoTJAlBdAyR2MyTtQOZpA" style="width:100%;height:100%;object-fit:cover" alt=""/>
+      </div>
+      <div class="dashed-circle" style="width:120px;height:120px">
+        <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuCxTko7NCMFhVkqPj1b11S1gYnEhAkMKoEclbq2peNcVvMESRXmYEVjlDzmPRcmN4t3rbmKfp3xDi-qSJjtIp5-fXZ69dZKvdi7PM_uwxCxFDtWAKpW1SjgNeFrmz-rjKjqIniGIDSoKCkdT4KpRrpyU7JBDyphIMsJ7x3bHBbQU-ej-Rsr6OI7sxZT3iODKCUpUThHqn52rXeHz7htnvWcujp_ANXOvk3S8Pe8NIxUz3-kEsrFlbij6KfF3JA_nxb8LUFbT8VXpDGh" style="width:100%;height:100%;object-fit:cover" alt=""/>
+      </div>
+      <!-- Label: невеста -->
+      <span class="caveat" style="position:absolute;right:-6px;top:50%;transform:rotate(90deg) translateX(50%);color:var(--red);font-size:16px;font-weight:600">невеста</span>
+    </div>
+
+    <!-- Date ribbon -->
+    <div style="text-align:center;margin:20px 0 32px">
+      <div class="ribbon">15 сентября 2026 года</div>
+    </div>
+  </section>
+
+  <!-- Extra hearts between hero and next section -->
+  <div style="position:relative;height:16px">
+    <div class="h" style="left:20px;top:-12px"><svg class="heart-float" width="16" height="15" viewBox="0 0 24 22"><path d="M12 21C12 21 1 13 1 6.5C1 3 3.5 1 6.5 1C8.5 1 10.5 2.5 12 4.5C13.5 2.5 15.5 1 17.5 1C20.5 1 23 3 23 6.5C23 13 12 21 12 21Z" fill="#C41E3A"/></svg></div>
+    <div class="h" style="right:32px;top:-8px"><svg width="12" height="11" viewBox="0 0 24 22"><path d="M12 21C12 21 1 13 1 6.5C1 3 3.5 1 6.5 1C8.5 1 10.5 2.5 12 4.5C13.5 2.5 15.5 1 17.5 1C20.5 1 23 3 23 6.5C23 13 12 21 12 21Z" fill="none" stroke="#8B1A1A" stroke-width="2"/></svg></div>
+    <div class="h" style="left:50%;top:-20px;transform:translateX(-50%)"><svg class="heart-float" style="animation-delay:.7s" width="10" height="9" viewBox="0 0 24 22"><path d="M12 21C12 21 1 13 1 6.5C1 3 3.5 1 6.5 1C8.5 1 10.5 2.5 12 4.5C13.5 2.5 15.5 1 17.5 1C20.5 1 23 3 23 6.5C23 13 12 21 12 21Z" fill="#8B1A1A"/></svg></div>
+  </div>
+
+  <!-- SECTION 2: Узнали? -->
+  <section class="reveal" style="text-align:center;padding:0 8px 20px">
+    <h3 class="red-title" style="font-size:32px;font-weight:700;font-style:italic;margin-bottom:12px">
+      <span class="wavy-underline">Узнали?</span>
+    </h3>
+    <p style="font-size:15px;line-height:1.5;color:var(--text)">Время пронеслось незаметно, и у этих двух влюблённых скоро свадьба! Да-да, мы сами в шоке!</p>
+  </section>
+
+  <!-- SECTION 3: Photo collage 2x2 -->
+  <section class="reveal" style="padding:0 8px 20px;position:relative">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;position:relative">
+      <div class="doodle-frame" style="transform:rotate(-1deg)"><img src="https://lh3.googleusercontent.com/aida-public/AB6AXuCH2txkcp8horK_9pfduU0iN4X-DR8zA82P6s3M-FtLCjKCWLqqZ-wMtjHZAR3hnd9wjcPBBHVJXvHD0Qsmqr2ejELN-LcyOx2L0pd6WQKBBdhC4UVqr1aS710pxhL-1eghyZvtyfiMwVdt4QQwdGVsjlXenJD_Vg8pZ8SKQ8fhH-Ls6_MZZPugKRRdFMt1fhdqQaS36MczYdrCH082HUAiDgMGmyKSHOTx74iHTVV_sH5erGfz9us5pYqmxrsWWDQXVxxZ3v6HKuE" style="width:100%;height:180px;object-fit:cover;display:block;filter:grayscale(.3)" alt=""/></div>
+      <div class="doodle-frame" style="transform:rotate(1.5deg)"><img src="https://lh3.googleusercontent.com/aida-public/AB6AXuD-yN-9WEHY_iVwf_W_PMHRONhkZ2vxi_1FuS3JlYPRFVZwEDEV1BesofxfS7Cb4eDuTb2rtnkdnj0LIjPVkKVeE8u5jR1DOY1-FE2_FL1fGmP6v0i8pyXIRYq2e_gwBBFGZx1fzTvtH_yP-SKCIdvz7IC86zA4A_3qa0Kc2GO_XGOHSCpiUvHvXc-xKo96IUakaOF4LSSqZZOlI59IO-UHZC62ehIadpNOi8gsrk0W0JlStV-KYuh8QnRXUhQa_0VW5BYJy72jOjw" style="width:100%;height:180px;object-fit:cover;display:block;filter:grayscale(.3)" alt=""/></div>
+      <div class="doodle-frame" style="transform:rotate(1deg)"><img src="https://lh3.googleusercontent.com/aida-public/AB6AXuCaxCzvCUvE56Yq-UBGC6EWTJbpQRnbVUTETVYRoNiooErvs5pUA_vuTZ8Umhl8b5hNUexPNeDhwo9r5U6fuBf49ihDU3wFfNVMvU7xLFGUE-aNq-0LnoeluNOUgKOsactS0tCDn6cJ4qHJnX5GA2lBq332SccY8QNLSRCvwKF-LrrxTe-tj7H0vPk1fJCoFCvO_1wWLsJiHmQZrM1wVQzdyB13dEe9FGK_dG1mtGWIwVLUHyb2QrC8RlUopv3ADO0qlgfiA99HbRY" style="width:100%;height:180px;object-fit:cover;display:block;filter:grayscale(.3)" alt=""/></div>
+      <div class="doodle-frame" style="transform:rotate(-1.5deg)"><img src="https://lh3.googleusercontent.com/aida-public/AB6AXuBMT1huOy-8ooe_LH5PBccNDf7K7G6qsPvf4y_MOtLDqk8Q7iHoxMoHx_qQRgS2nmkxV8Uigd-YWFH9TEuy5OfohATfRPZj3VHBiXY2xqBh84A-1ZESnksuZ8JJ1OT4Wzbbi5P8-zFtPpGsYBfxybg-8a5zcOFPBufRzcRobrdwr1iG7NqKAu529P2mopdJAR5Nnoam8iAJE9JIHGNKKlPFNBlZzSY_r-es8_WOdjVWeTnP1GUKtBYJdhLH8Vz4qFdUKa5MLnfioMBQ" style="width:100%;height:180px;object-fit:cover;display:block;filter:grayscale(.3)" alt=""/></div>
+    </div>
+    <!-- Dense doodle hearts on/around collage -->
+    <div class="h" style="top:-10px;left:6px"><svg class="heart-float" width="22" height="20" viewBox="0 0 24 22"><path d="M12 21C12 21 1 13 1 6.5C1 3 3.5 1 6.5 1C8.5 1 10.5 2.5 12 4.5C13.5 2.5 15.5 1 17.5 1C20.5 1 23 3 23 6.5C23 13 12 21 12 21Z" fill="none" stroke="#8B1A1A" stroke-width="2.5"/></svg></div>
+    <div class="h" style="top:-6px;right:8px"><svg width="18" height="17" viewBox="0 0 24 22"><path d="M12 21C12 21 1 13 1 6.5C1 3 3.5 1 6.5 1C8.5 1 10.5 2.5 12 4.5C13.5 2.5 15.5 1 17.5 1C20.5 1 23 3 23 6.5C23 13 12 21 12 21Z" fill="#C41E3A" stroke="#8B1A1A" stroke-width="1"/></svg></div>
+    <div class="h" style="top:45%;left:-6px"><svg class="heart-float" style="animation-delay:.3s" width="14" height="13" viewBox="0 0 24 22"><path d="M12 21C12 21 1 13 1 6.5C1 3 3.5 1 6.5 1C8.5 1 10.5 2.5 12 4.5C13.5 2.5 15.5 1 17.5 1C20.5 1 23 3 23 6.5C23 13 12 21 12 21Z" fill="#C41E3A"/></svg></div>
+    <div class="h" style="top:48%;right:-4px"><svg width="11" height="10" viewBox="0 0 24 22"><path d="M12 21C12 21 1 13 1 6.5C1 3 3.5 1 6.5 1C8.5 1 10.5 2.5 12 4.5C13.5 2.5 15.5 1 17.5 1C20.5 1 23 3 23 6.5C23 13 12 21 12 21Z" fill="none" stroke="#C41E3A" stroke-width="2"/></svg></div>
+    <div class="h" style="bottom:-8px;right:36px"><svg class="heart-float" style="animation-delay:.8s" width="16" height="15" viewBox="0 0 24 22"><path d="M12 21C12 21 1 13 1 6.5C1 3 3.5 1 6.5 1C8.5 1 10.5 2.5 12 4.5C13.5 2.5 15.5 1 17.5 1C20.5 1 23 3 23 6.5C23 13 12 21 12 21Z" fill="#8B1A1A"/></svg></div>
+    <div class="h" style="bottom:-4px;left:30px"><svg width="10" height="9" viewBox="0 0 24 22"><path d="M12 21C12 21 1 13 1 6.5C1 3 3.5 1 6.5 1C8.5 1 10.5 2.5 12 4.5C13.5 2.5 15.5 1 17.5 1C20.5 1 23 3 23 6.5C23 13 12 21 12 21Z" fill="none" stroke="#8B1A1A" stroke-width="2"/></svg></div>
+    <!-- Curvy doodle line across top of collage -->
+    <svg style="position:absolute;top:-14px;left:20px;z-index:10" width="180" height="12" viewBox="0 0 180 12"><path d="M0 6 Q20 0 40 8 T80 4 T120 9 T160 3 L180 6" fill="none" stroke="#8B1A1A" stroke-width="1.5" opacity=".4"/></svg>
+  </section>
+
+  <!-- SECTION 4: Invitation -->
+  <section class="reveal" style="text-align:center;padding:0 8px 20px">
+    <h3 class="red-title" style="font-size:30px;font-weight:700;margin-bottom:12px">
+      <span class="wavy-underline">Мы так вас любим!</span>
+    </h3>
+    <p style="font-size:15px;line-height:1.5">Поэтому приглашаем стать свидетелями дня рождения нашей семьи, которое состоится <strong style="color:var(--red)">15 сентября 2026 года!</strong></p>
+  </section>
+
+  <!-- Doodle hearts between invitation and calendar -->
+  <div style="position:relative;height:8px;margin-bottom:8px">
+    <div class="h" style="left:40%;top:-8px"><svg class="heart-float" width="13" height="12" viewBox="0 0 24 22"><path d="M12 21C12 21 1 13 1 6.5C1 3 3.5 1 6.5 1C8.5 1 10.5 2.5 12 4.5C13.5 2.5 15.5 1 17.5 1C20.5 1 23 3 23 6.5C23 13 12 21 12 21Z" fill="#C41E3A"/></svg></div>
+    <div class="h" style="right:20%;top:-4px"><svg width="9" height="8" viewBox="0 0 24 22"><path d="M12 21C12 21 1 13 1 6.5C1 3 3.5 1 6.5 1C8.5 1 10.5 2.5 12 4.5C13.5 2.5 15.5 1 17.5 1C20.5 1 23 3 23 6.5C23 13 12 21 12 21Z" fill="none" stroke="#8B1A1A" stroke-width="2.5"/></svg></div>
+  </div>
+
+  <!-- SECTION 5: Calendar -->
+  <section class="reveal" style="padding:0 8px 24px;position:relative">
+    <div style="display:flex;justify-content:center;gap:24px;align-items:flex-start">
+      <table class="cal" style="flex-shrink:0">
+        <tr><td colspan="7" class="month-header">сентябрь 2026</td></tr>
+        <tr><th>пн</th><th>вт</th><th>ср</th><th>чт</th><th>пт</th><th>сб</th><th>вс</th></tr>
+        <tr><td></td><td>1</td><td>2</td><td>3</td><td>4</td><td>5</td><td>6</td></tr>
+        <tr><td>7</td><td>8</td><td>9</td><td>10</td><td>11</td><td>12</td><td>13</td></tr>
+        <tr><td>14</td><td class="today">15</td><td>16</td><td>17</td><td>18</td><td>19</td><td>20</td></tr>
+        <tr><td>21</td><td>22</td><td>23</td><td>24</td><td>25</td><td>26</td><td>27</td></tr>
+        <tr><td>28</td><td>29</td><td>30</td><td></td><td></td><td></td><td></td></tr>
+      </table>
+      <!-- Chandelier doodle -->
+      <svg width="60" height="100" viewBox="0 0 60 100" style="flex-shrink:0;margin-top:8px">
+        <path d="M30 0 L30 20" stroke="#8B1A1A" stroke-width="1.5" fill="none"/>
+        <path d="M15 20 Q30 15 45 20 Q50 22 45 28 Q30 35 15 28 Q10 22 15 20Z" stroke="#8B1A1A" stroke-width="1.5" fill="none"/>
+        <path d="M20 28 L15 45" stroke="#8B1A1A" stroke-width="1" fill="none"/>
+        <path d="M40 28 L45 45" stroke="#8B1A1A" stroke-width="1" fill="none"/>
+        <path d="M30 32 L30 50" stroke="#8B1A1A" stroke-width="1" fill="none"/>
+        <circle cx="15" cy="48" r="3" fill="none" stroke="#8B1A1A" stroke-width="1"/>
+        <circle cx="30" cy="53" r="3" fill="none" stroke="#8B1A1A" stroke-width="1"/>
+        <circle cx="45" cy="48" r="3" fill="none" stroke="#8B1A1A" stroke-width="1"/>
+        <path d="M10 28 L5 40" stroke="#8B1A1A" stroke-width="1" fill="none" opacity=".5"/>
+        <path d="M50 28 L55 40" stroke="#8B1A1A" stroke-width="1" fill="none" opacity=".5"/>
+      </svg>
+    </div>
+  </section>
+
+  <!-- SECTION 6: Location -->
+  <section class="reveal" style="text-align:center;padding:0 8px 24px">
+    <!-- Map pin SVG -->
+    <svg width="28" height="36" viewBox="0 0 28 36" style="margin-bottom:4px">
+      <path d="M14 0C6.3 0 0 6.3 0 14C0 24.5 14 36 14 36S28 24.5 28 14C28 6.3 21.7 0 14 0Z" fill="none" stroke="#8B1A1A" stroke-width="2"/>
+      <circle cx="14" cy="14" r="5" fill="none" stroke="#8B1A1A" stroke-width="2"/>
+    </svg>
+    <h3 class="red-title" style="font-size:28px;font-weight:700;margin-bottom:8px">Где?</h3>
+    <p style="font-size:13px;color:var(--text-light);line-height:1.4">Гранд Палас, ул. Краля Милана, 1<br/>Белград, Сербия</p>
+  </section>
+
+  <!-- Decorative divider -->
+  <div style="text-align:center;padding:0 0 32px">
+    <svg width="200" height="12" viewBox="0 0 200 12"><path d="M0 6 Q25 0 50 6 T100 6 T150 6 T200 6" fill="none" stroke="#8B1A1A" stroke-width="1.5" opacity=".4"/></svg>
+  </div>
+
+  <!-- SECTION 7: Timeline -->
+  <section class="reveal" style="padding:0 8px 24px">
+    <h3 class="red-title" style="font-size:32px;font-weight:700;margin-bottom:24px">
+      <span class="wavy-underline">Во сколько?</span>
+    </h3>
+
+    <div style="position:relative;padding-left:56px;min-height:500px">
+      <!-- Wavy vertical line — organic hand-drawn thread -->
+      <svg style="position:absolute;left:20px;top:0;width:50px;height:100%;overflow:visible" preserveAspectRatio="none">
+        <path d="M24 0 C18 30 30 50 24 80 C18 110 32 130 26 160 C20 190 34 210 22 240 C14 270 30 290 24 320 C18 350 28 380 22 410 C16 440 30 460 24 490 C18 510 26 530 22 560" fill="none" stroke="#8B1A1A" stroke-width="2" stroke-linecap="round" vector-effect="non-scaling-stroke" opacity=".5"/>
+      </svg>
+      <!-- Animated ring sliding down the thread -->
+      <div class="timeline-ring">
+        <svg width="20" height="20" viewBox="0 0 20 20">
+          <circle cx="10" cy="10" r="7" fill="none" stroke="#C41E3A" stroke-width="2"/>
+          <circle cx="10" cy="10" r="4" fill="none" stroke="#8B1A1A" stroke-width="1.5" opacity=".6"/>
+        </svg>
+      </div>
+
+      <!-- Event 1 -->
+      <div style="position:relative;margin-bottom:40px">
+        <div class="timeline-dot"></div>
+        <p class="caveat" style="font-size:28px;font-weight:700;color:var(--red);line-height:1">14:30</p>
+        <p style="font-size:14px;line-height:1.4;margin-top:4px">сбор гостей и фуршет, где вы расслабитесь после дороги</p>
+        <!-- Champagne icon -->
+        <svg style="position:absolute;right:0;top:0" width="32" height="32" viewBox="0 0 32 32"><path d="M8 28 L12 10 L20 10 L24 28Z" fill="none" stroke="#8B1A1A" stroke-width="1.5"/><path d="M10 10 Q16 4 22 10" fill="none" stroke="#8B1A1A" stroke-width="1.5"/><line x1="16" y1="4" x2="16" y2="1" stroke="#8B1A1A" stroke-width="1"/><circle cx="16" cy="0" r="1" fill="#C41E3A"/></svg>
+      </div>
+
+      <!-- Event 2 -->
+      <div style="position:relative;margin-bottom:40px">
+        <div class="timeline-dot"></div>
+        <p class="caveat" style="font-size:28px;font-weight:700;color:var(--red);line-height:1">15:30</p>
+        <p style="font-size:14px;line-height:1.4;margin-top:4px">церемония на территории — немного смеёмся, немного плачем</p>
+        <!-- Heart icon for ceremony -->
+        <svg style="position:absolute;right:4px;top:4px" width="28" height="26" viewBox="0 0 24 22"><path d="M12 21C12 21 1 13 1 6.5C1 3 3.5 1 6.5 1C8.5 1 10.5 2.5 12 4.5C13.5 2.5 15.5 1 17.5 1C20.5 1 23 3 23 6.5C23 13 12 21 12 21Z" fill="none" stroke="#8B1A1A" stroke-width="1.5"/></svg>
+      </div>
+
+      <!-- Event 3 -->
+      <div style="position:relative;margin-bottom:40px">
+        <div class="timeline-dot"></div>
+        <p class="caveat" style="font-size:28px;font-weight:700;color:var(--red);line-height:1">16:15</p>
+        <p style="font-size:14px;line-height:1.4;margin-top:4px">начало банкета и гастрономическое удовольствие</p>
+        <!-- Candles icon -->
+        <svg style="position:absolute;right:4px;top:8px" width="28" height="40" viewBox="0 0 28 40"><rect x="8" y="15" width="5" height="20" rx="1" fill="none" stroke="#8B1A1A" stroke-width="1.5"/><rect x="16" y="12" width="5" height="23" rx="1" fill="none" stroke="#8B1A1A" stroke-width="1.5"/><path d="M10.5 15 Q10.5 10 10.5 8" stroke="#8B1A1A" stroke-width="1"/><path d="M18.5 12 Q18.5 7 18.5 5" stroke="#8B1A1A" stroke-width="1"/><ellipse cx="10.5" cy="7" rx="2" ry="3" fill="none" stroke="#C41E3A" stroke-width="1"/><ellipse cx="18.5" cy="4" rx="2" ry="3" fill="none" stroke="#C41E3A" stroke-width="1"/><svg width="10" height="10" viewBox="0 0 24 22" x="20" y="16"><path d="M12 21C12 21 1 13 1 6.5C1 3 3.5 1 6.5 1C8.5 1 10.5 2.5 12 4.5C13.5 2.5 15.5 1 17.5 1C20.5 1 23 3 23 6.5C23 13 12 21 12 21Z" fill="#C41E3A" stroke="#8B1A1A" stroke-width="1.5"/></svg></svg>
+      </div>
+
+      <!-- Event 4 -->
+      <div style="position:relative;margin-bottom:40px">
+        <div class="timeline-dot"></div>
+        <p class="caveat" style="font-size:28px;font-weight:700;color:var(--red);line-height:1">18:00</p>
+        <p style="font-size:14px;line-height:1.4;margin-top:4px">начало интерактива и танцев, где отказы не принимаются</p>
+        <!-- Champagne glasses -->
+        <svg style="position:absolute;right:0;top:4px" width="30" height="30" viewBox="0 0 30 30"><path d="M8 0 L5 12 L8 12 L8 22" fill="none" stroke="#8B1A1A" stroke-width="1.5"/><path d="M22 0 L25 12 L22 12 L22 22" fill="none" stroke="#8B1A1A" stroke-width="1.5"/><path d="M4 22 L12 22" stroke="#8B1A1A" stroke-width="1.5"/><path d="M18 22 L26 22" stroke="#8B1A1A" stroke-width="1.5"/></svg>
+      </div>
+
+      <!-- Event 5 -->
+      <div style="position:relative">
+        <div class="timeline-dot"></div>
+        <p class="caveat" style="font-size:28px;font-weight:700;color:var(--red);line-height:1">23:00</p>
+        <p style="font-size:14px;line-height:1.4;margin-top:4px">официальное окончание вечера</p>
+        <!-- Rings icon -->
+        <svg style="position:absolute;right:8px;top:0" width="30" height="20" viewBox="0 0 30 20"><circle cx="10" cy="10" r="7" fill="none" stroke="#8B1A1A" stroke-width="1.5"/><circle cx="20" cy="10" r="7" fill="none" stroke="#8B1A1A" stroke-width="1.5"/></svg>
+      </div>
+    </div>
+  </section>
+
+  <!-- Hearts between timeline and countdown -->
+  <div style="text-align:center;padding:0 0 12px;position:relative">
+    <svg class="heart-float" width="20" height="18" viewBox="0 0 24 22" style="margin:0 4px"><path d="M12 21C12 21 1 13 1 6.5C1 3 3.5 1 6.5 1C8.5 1 10.5 2.5 12 4.5C13.5 2.5 15.5 1 17.5 1C20.5 1 23 3 23 6.5C23 13 12 21 12 21Z" fill="#C41E3A" stroke="#8B1A1A" stroke-width="1"/></svg>
+    <svg width="14" height="13" viewBox="0 0 24 22" style="margin:0 4px"><path d="M12 21C12 21 1 13 1 6.5C1 3 3.5 1 6.5 1C8.5 1 10.5 2.5 12 4.5C13.5 2.5 15.5 1 17.5 1C20.5 1 23 3 23 6.5C23 13 12 21 12 21Z" fill="none" stroke="#8B1A1A" stroke-width="2"/></svg>
+    <svg class="heart-float" style="animation-delay:.4s" width="18" height="17" viewBox="0 0 24 22" style="margin:0 4px"><path d="M12 21C12 21 1 13 1 6.5C1 3 3.5 1 6.5 1C8.5 1 10.5 2.5 12 4.5C13.5 2.5 15.5 1 17.5 1C20.5 1 23 3 23 6.5C23 13 12 21 12 21Z" fill="#C41E3A"/></svg>
+  </div>
+
+  <!-- SECTION 8: Countdown -->
+  <section class="reveal" style="text-align:center;padding:0 8px 24px">
+    <h3 class="red-title" style="font-size:28px;font-weight:700;margin-bottom:16px">
+      До нашей встречи<br/>осталось
+    </h3>
+    <div class="countdown-frame">
+      <div style="display:flex;gap:8px;align-items:baseline;justify-content:center">
+        <div style="text-align:center">
+          <span class="caveat" style="font-size:36px;font-weight:700;color:var(--red)" id="cd-d">00</span>
+          <br/><span style="font-size:10px;color:var(--text-light)">дней</span>
+        </div>
+        <span class="caveat" style="font-size:24px;color:var(--red)">:</span>
+        <div style="text-align:center">
+          <span class="caveat" style="font-size:36px;font-weight:700;color:var(--red)" id="cd-h">00</span>
+          <br/><span style="font-size:10px;color:var(--text-light)">часов</span>
+        </div>
+        <span class="caveat" style="font-size:24px;color:var(--red)">:</span>
+        <div style="text-align:center">
+          <span class="caveat" style="font-size:36px;font-weight:700;color:var(--red)" id="cd-m">00</span>
+          <br/><span style="font-size:10px;color:var(--text-light)">минут</span>
+        </div>
+        <span class="caveat" style="font-size:24px;color:var(--red)">:</span>
+        <div style="text-align:center">
+          <span class="caveat" style="font-size:36px;font-weight:700;color:var(--red)" id="cd-s">00</span>
+          <br/><span style="font-size:10px;color:var(--text-light)">секунд</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Decorative wavy line + hearts before closing -->
+  <div style="text-align:center;padding:8px 0 16px">
+    <svg width="200" height="16" viewBox="0 0 200 16"><path d="M0 8 Q15 2 30 8 T60 8 T90 8 T120 8 T150 8 T180 8 L200 8" fill="none" stroke="#8B1A1A" stroke-width="1.5" opacity=".35"/></svg>
+  </div>
+
+  <!-- SECTION 9: Closing -->
+  <section class="reveal" style="text-align:center;padding:0 8px 20px">
+    <h3 class="red-title" style="font-size:28px;font-weight:700;line-height:1.3;margin-bottom:16px">
+      С нетерпением<br/>ждём вас на нашем<br/>празднике любви!
+    </h3>
+    <p class="caveat" style="font-size:22px;color:var(--red);font-weight:600;font-style:italic">
+      Ваши Мария и Александр<br/>(скоро Ивановы!)
+    </p>
+  </section>
+
+  <!-- SECTION 10: Photo strip -->
+  <section class="reveal" style="padding:0 40px 24px;position:relative">
+    <div class="photo-strip">
+      <div style="transform:rotate(-2deg);overflow:hidden"><img src="https://lh3.googleusercontent.com/aida-public/AB6AXuDtfplfKdz7dtpNtA6OJdZgBPJKsJTLBM3oflT5RwC_yQf3PNcOvyn9HbJMW4WsTDORDqTB7C7hywfsSQ8gYxGTsGpy-PGt_2IInEmbibvLgQgszIH6vf-CkDIiMpH7bC6qdeeCCuvXDX7uXkpOJERxQ0YaXY_HTgEItqR3qvQgeLKFnYELLhBGAUsdB3L7uQj7pPGcSRBYjwhRta3CW_dfmBvxtytDR5yRuDfXwxFv1OlWlS1jN2dpNi2S1beRATJWkWua9tXXYiuz" style="width:100%;height:140px;object-fit:cover;display:block" alt=""/></div>
+      <div style="transform:rotate(1.5deg);overflow:hidden"><img src="https://lh3.googleusercontent.com/aida-public/AB6AXuAAHVDJJdrhU1Cbjz7CfzSfGbEyWSIa90bU1kgxG86ZjVLVUckq4nYxp8myFk5iYH8BIOnBdCKOYRS-gD3ih7MZd-AFyktVdxcpnXXgB7Tzf3P4dPuJNG9UAC0_qXtneCr-L-xLn1CI1ZK0qbWyPDAHOZCjtci4vRmL6lhGgaAnI_kZAspeL9FjgSXPsOR-HL2IiXw8je2Of2dYQNqqx3p1PzA8h5bEjeLu099PSY-x7IEB23F5sKC83EX4rVXa_Pn4mlBAbEXidTVA" style="width:100%;height:140px;object-fit:cover;display:block" alt=""/></div>
+      <div style="transform:rotate(-1deg);overflow:hidden"><img src="https://lh3.googleusercontent.com/aida-public/AB6AXuDdOYbzeEcqykCoNrofbNMLGnjPueNDLSRiUaBvxkA2LgQG_tezfz4Jz_f78cBY8_4u6ObQPCZUp_wjxeDs93N_gHD8zZRKMsEy1qWx5giS5orqby6Adr-tvdIe-hudh1CKwQmbmOmg7dqEzCc9TzkGqHw7fJ9a41r_r1jwFip9DReIVsKZjmainSot6IcMac6E9bBmOFSNlrzG9iywukNwBdwjXskGAFL3qYJXqr2JcYR8K0HZCBVXwi57rbL29ahtUQQuK-Qi0y_c" style="width:100%;height:140px;object-fit:cover;display:block" alt=""/></div>
+    </div>
+    <!-- Hearts around photo strip -->
+    <svg class="heart-float" style="position:absolute;top:-10px;right:16px" width="22" height="20" viewBox="0 0 24 22"><path d="M12 21C12 21 1 13 1 6.5C1 3 3.5 1 6.5 1C8.5 1 10.5 2.5 12 4.5C13.5 2.5 15.5 1 17.5 1C20.5 1 23 3 23 6.5C23 13 12 21 12 21Z" fill="#C41E3A" stroke="#8B1A1A" stroke-width="1"/></svg>
+    <svg class="heart-float" style="position:absolute;bottom:20px;left:12px;animation-delay:.5s" width="18" height="16" viewBox="0 0 24 22"><path d="M12 21C12 21 1 13 1 6.5C1 3 3.5 1 6.5 1C8.5 1 10.5 2.5 12 4.5C13.5 2.5 15.5 1 17.5 1C20.5 1 23 3 23 6.5C23 13 12 21 12 21Z" fill="#C41E3A" stroke="#8B1A1A" stroke-width="1"/></svg>
+    <svg class="heart-float" style="position:absolute;top:40%;right:8px;animation-delay:1s" width="14" height="13" viewBox="0 0 24 22"><path d="M12 21C12 21 1 13 1 6.5C1 3 3.5 1 6.5 1C8.5 1 10.5 2.5 12 4.5C13.5 2.5 15.5 1 17.5 1C20.5 1 23 3 23 6.5C23 13 12 21 12 21Z" fill="none" stroke="#C41E3A" stroke-width="2"/></svg>
+    <svg style="position:absolute;bottom:40px;right:20px" width="16" height="15" viewBox="0 0 24 22"><path d="M12 21C12 21 1 13 1 6.5C1 3 3.5 1 6.5 1C8.5 1 10.5 2.5 12 4.5C13.5 2.5 15.5 1 17.5 1C20.5 1 23 3 23 6.5C23 13 12 21 12 21Z" fill="none" stroke="#8B1A1A" stroke-width="2"/></svg>
+    <svg class="heart-float" style="position:absolute;top:60%;left:16px;animation-delay:1.5s" width="20" height="18" viewBox="0 0 24 22"><path d="M12 21C12 21 1 13 1 6.5C1 3 3.5 1 6.5 1C8.5 1 10.5 2.5 12 4.5C13.5 2.5 15.5 1 17.5 1C20.5 1 23 3 23 6.5C23 13 12 21 12 21Z" fill="#C41E3A" stroke="#8B1A1A" stroke-width="1"/></svg>
+  </section>
+
+</div><!-- end .panel -->
+
+<!-- Bottom red spacing -->
+<div style="height:40px"></div>
 
 <script>
-document.addEventListener('DOMContentLoaded', () => {
+let envelopeOpened = false;
+function openEnvelope() {
+  if (envelopeOpened) return;
+  envelopeOpened = true;
+
+  const envWrap = document.getElementById('envWrap');
   const envScreen = document.getElementById('envScreen');
-  const env = document.getElementById('env');
-  const mainContent = document.getElementById('mainContent');
+  const pageContent = document.getElementById('pageContent');
 
-  // Click anywhere on envelope screen to open
-  envScreen.addEventListener('click', () => {
-    if (env.classList.contains('open')) return;
+  // 1. Animate envelope open
+  envWrap.classList.add('open');
 
-    // 1. Open envelope
-    env.classList.add('open');
+  // 2. After parts fly away, fade out and show content
+  setTimeout(() => {
+    envScreen.classList.add('fade-out');
+    document.documentElement.classList.add('unlocked');
+    pageContent.classList.add('show');
+  }, 1500);
 
-    // 2. After parts fly away, fade out screen
-    setTimeout(() => {
-      envScreen.classList.add('fade-out');
-      document.documentElement.classList.add('unlocked');
-      mainContent.classList.add('show');
-    }, 1600);
+  // 3. Remove envelope from DOM
+  setTimeout(() => {
+    envScreen.classList.add('gone');
+  }, 2200);
+}
 
-    // 3. Remove envelope completely
-    setTimeout(() => {
-      envScreen.classList.add('gone');
-    }, 2400);
-  });
+document.addEventListener('DOMContentLoaded',()=>{
+
+  // Scroll reveal
+  const obs=new IntersectionObserver(entries=>{
+    entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible')});
+  },{threshold:.08});
+  document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+
+  // Countdown
+  const t=new Date('2026-09-15T15:30:00').getTime();
+  function tick(){
+    const d=t-Date.now();if(d<0)return;
+    document.getElementById('cd-d').textContent=Math.floor(d/864e5);
+    document.getElementById('cd-h').textContent=String(Math.floor((d%864e5)/36e5)).padStart(2,'0');
+    document.getElementById('cd-m').textContent=String(Math.floor((d%36e5)/6e4)).padStart(2,'0');
+    document.getElementById('cd-s').textContent=String(Math.floor((d%6e4)/1e3)).padStart(2,'0');
+  }
+  tick();setInterval(tick,1000);
 });
 </script>
 </body>
