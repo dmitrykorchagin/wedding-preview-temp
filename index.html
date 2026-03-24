@@ -12,9 +12,115 @@
   --cream:#FDF5EC;--cream-dark:#F5EDE3;--text:#4A3728;--text-light:#6B5B4E;
 }
 html{scroll-behavior:smooth}
-body{background:var(--bg-outer);font-family:'Nunito',sans-serif;color:var(--text);overflow-x:hidden;opacity:0;transition:opacity .8s}
-body.loaded{opacity:1}
+body{background:var(--bg-outer);font-family:'Nunito',sans-serif;color:var(--text);overflow-x:hidden}
 .caveat{font-family:'Caveat',cursive}
+
+/* === ENVELOPE === */
+.envelope-screen{
+  position:fixed;inset:0;z-index:1000;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  background:linear-gradient(170deg,#F5ECD7 0%,#E8DCCA 40%,#DDD0BA 100%);
+  transition:opacity .6s ease;
+}
+.envelope-screen.hidden{opacity:0;pointer-events:none}
+
+.envelope{
+  position:relative;width:320px;height:220px;margin:0 auto;
+}
+/* Envelope body */
+.envelope-body{
+  position:absolute;bottom:0;width:320px;height:180px;
+  background:linear-gradient(145deg,#EDE4D4 0%,#D9CEBC 100%);
+  border-radius:4px;
+  box-shadow:0 8px 32px rgba(0,0,0,.12),inset 0 -2px 0 rgba(0,0,0,.05);
+}
+/* Envelope side folds */
+.envelope-body::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:100%;
+  background:linear-gradient(135deg,transparent 48%,rgba(0,0,0,.03) 49%,rgba(0,0,0,.03) 51%,transparent 52%);
+}
+/* Bottom triangle fold */
+.envelope-bottom{
+  position:absolute;bottom:0;left:0;width:0;height:0;
+  border-left:160px solid transparent;border-right:160px solid transparent;
+  border-bottom:100px solid #D4C9B5;
+  filter:drop-shadow(0 -1px 1px rgba(0,0,0,.04));
+}
+/* Left triangle */
+.envelope-left{
+  position:absolute;bottom:0;left:0;width:0;height:0;
+  border-top:90px solid transparent;border-bottom:90px solid transparent;
+  border-left:160px solid #E0D6C4;
+  filter:drop-shadow(1px 0 1px rgba(0,0,0,.03));
+}
+/* Right triangle */
+.envelope-right{
+  position:absolute;bottom:0;right:0;width:0;height:0;
+  border-top:90px solid transparent;border-bottom:90px solid transparent;
+  border-right:160px solid #DDD2C0;
+  filter:drop-shadow(-1px 0 1px rgba(0,0,0,.03));
+}
+/* Top flap */
+.envelope-flap{
+  position:absolute;top:0;left:0;width:0;height:0;
+  border-left:160px solid transparent;border-right:160px solid transparent;
+  border-top:120px solid #E5DCCB;
+  transform-origin:top center;
+  transition:transform 1s cubic-bezier(.4,.0,.2,1);
+  z-index:5;
+  filter:drop-shadow(0 2px 3px rgba(0,0,0,.08));
+}
+.envelope.open .envelope-flap{
+  transform:rotateX(180deg);
+}
+
+/* Letter sliding out */
+.letter{
+  position:absolute;left:20px;right:20px;top:40px;height:160px;
+  background:white;border-radius:2px;z-index:2;
+  box-shadow:0 1px 4px rgba(0,0,0,.08);
+  transform:translateY(0);
+  transition:transform 1.2s cubic-bezier(.4,.0,.2,1) .4s;
+  display:flex;align-items:center;justify-content:center;
+  padding:20px;
+}
+.envelope.open .letter{
+  transform:translateY(-200px);
+}
+
+.letter-text{
+  font-family:'Caveat',cursive;color:var(--red);font-size:20px;
+  text-align:center;line-height:1.3;
+}
+
+/* Heart seal */
+.seal{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:10;
+  width:80px;height:74px;cursor:pointer;
+  transition:transform .3s ease;
+}
+.seal:hover{transform:translate(-50%,-50%) scale(1.08)}
+.seal:active{transform:translate(-50%,-50%) scale(.95)}
+.seal svg{filter:drop-shadow(0 3px 6px rgba(0,0,0,.2))}
+
+/* Envelope text labels */
+.env-label{
+  font-family:'Caveat',cursive;color:var(--red);
+  position:relative;
+}
+.env-label::after{
+  content:'';position:absolute;bottom:-2px;left:0;right:0;height:1px;background:var(--red);opacity:.4;
+}
+
+/* Page content hidden until envelope opens */
+.page-content{
+  opacity:0;transform:translateY(40px);
+  transition:opacity .8s ease .8s,transform .8s ease .8s;
+}
+.page-content.show{opacity:1;transform:none}
+
+/* Body scroll lock */
+body.locked{overflow:hidden}
 
 /* Main cream panel */
 .panel{
@@ -137,11 +243,51 @@ body.loaded{opacity:1}
 </head>
 <body>
 
+<!-- ENVELOPE SCREEN -->
+<div class="envelope-screen" id="envelope-screen">
+  <!-- Title -->
+  <p class="caveat" style="color:var(--red);font-size:36px;font-weight:600;margin-bottom:48px;text-align:center">Вам письмо!</p>
+
+  <!-- Envelope -->
+  <div class="envelope" id="envelope">
+    <div class="envelope-flap"></div>
+    <div class="letter">
+      <p class="letter-text">Приглашение<br/>на свадьбу<br/>♥</p>
+    </div>
+    <div class="envelope-body"></div>
+    <div class="envelope-bottom"></div>
+    <div class="envelope-left"></div>
+    <div class="envelope-right"></div>
+    <!-- Heart seal button -->
+    <div class="seal" id="seal">
+      <svg width="80" height="74" viewBox="0 0 80 74">
+        <path d="M40 70C40 70 2 46 2 22C2 10 12 2 24 2C30 2 36 6 40 12C44 6 50 2 56 2C68 2 78 10 78 22C78 46 40 70 40 70Z" fill="#8B1A1A"/>
+        <!-- Zigzag stamp edge -->
+        <path d="M40 70C40 70 2 46 2 22C2 10 12 2 24 2C30 2 36 6 40 12C44 6 50 2 56 2C68 2 78 10 78 22C78 46 40 70 40 70Z" fill="none" stroke="#F5ECD7" stroke-width="2" stroke-dasharray="3 3"/>
+        <text x="40" y="36" text-anchor="middle" fill="#F5ECD7" font-family="Caveat,cursive" font-size="14" font-weight="600">Нажми</text>
+        <text x="40" y="50" text-anchor="middle" fill="#F5ECD7" font-family="Caveat,cursive" font-size="14" font-weight="600">сюда</text>
+      </svg>
+    </div>
+  </div>
+
+  <!-- Labels -->
+  <div style="margin-top:60px;padding:0 40px;text-align:left;width:320px">
+    <p style="margin-bottom:8px">
+      <span style="font-size:14px;color:var(--text-light)">Для: </span>
+      <span class="env-label caveat" style="font-size:22px"> Родных и близких</span>
+    </p>
+    <p>
+      <span style="font-size:14px;color:var(--text-light)">От: </span>
+      <span class="env-label caveat" style="font-size:22px"> Марии и Александра</span>
+    </p>
+  </div>
+</div>
+
 <!-- Top spacing on red background -->
 <div style="height:20px"></div>
 
-<!-- MAIN CREAM PANEL -->
-<div class="panel">
+<!-- MAIN CREAM PANEL (hidden until envelope opens) -->
+<div class="panel page-content" id="page-content">
 
   <!-- SECTION 1: Hero -->
   <section class="reveal" style="padding-top:32px;text-align:center">
@@ -410,7 +556,31 @@ body.loaded{opacity:1}
 
 <script>
 document.addEventListener('DOMContentLoaded',()=>{
-  requestAnimationFrame(()=>document.body.classList.add('loaded'));
+  // Lock scroll while envelope is showing
+  document.body.classList.add('locked');
+
+  // Envelope open logic
+  const seal = document.getElementById('seal');
+  const envelope = document.getElementById('envelope');
+  const envelopeScreen = document.getElementById('envelope-screen');
+  const pageContent = document.getElementById('page-content');
+
+  seal.addEventListener('click', () => {
+    // 1. Open flap + slide letter out
+    envelope.classList.add('open');
+
+    // 2. After letter slides up, fade out envelope screen
+    setTimeout(() => {
+      envelopeScreen.classList.add('hidden');
+      document.body.classList.remove('locked');
+      pageContent.classList.add('show');
+    }, 1800);
+
+    // 3. Remove envelope from DOM after transition
+    setTimeout(() => {
+      envelopeScreen.style.display = 'none';
+    }, 2500);
+  });
 
   // Scroll reveal
   const obs=new IntersectionObserver(entries=>{
