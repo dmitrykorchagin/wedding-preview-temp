@@ -47,9 +47,9 @@ body{background:var(--bg-outer);font-family:'Nunito',sans-serif;color:var(--text
 /* Right fold — full height right half */
 .env-fold-r{top:0;right:0;width:50%;z-index:3}
 
-/* Seal — dead center, larger */
+/* Seal — on the edge of bottom flap, like reference */
 .env-seal{
-  position:absolute;top:50%;left:50%;
+  position:absolute;top:58%;left:50%;
   transform:translate(-50%,-50%);
   width:clamp(100px,28vw,130px);z-index:10;
   filter:drop-shadow(0 4px 16px rgba(0,0,0,.3));
@@ -63,19 +63,11 @@ body{background:var(--bg-outer);font-family:'Nunito',sans-serif;color:var(--text
 .env-wrap.open .env-fold-r{transform:translateX(120vw)}
 .env-wrap.open .env-body{transform:translateY(120vh);opacity:0}
 
-/* Title — ON TOP of envelope, centered upper area */
-.env-title{
-  font-family:'Playfair Display',serif;font-style:italic;
-  color:var(--red);font-size:clamp(30px,9vw,42px);
-  position:absolute;top:28vh;left:0;right:0;text-align:center;z-index:20;
-  transition:transform 1.2s cubic-bezier(.4,0,.2,1);
-  pointer-events:none;
-}
+/* Title removed — already on Tilda image */
+.env-title{display:none}
 
 /* No separate labels — they're part of the Tilda envelope images */
 
-/* Hide title on open */
-.env-screen.opening .env-title{transform:translateY(-40vh)}
 
 /* Main page hidden until envelope opens */
 .page-content{opacity:0;transition:opacity .6s ease}
