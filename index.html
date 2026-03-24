@@ -23,7 +23,7 @@ body{background:var(--bg-outer);font-family:'Nunito',sans-serif;color:var(--text
   display:flex;flex-direction:column;align-items:center;justify-content:center;
   cursor:pointer;
 }
-.env-screen.fade-out{opacity:0;transition:opacity .4s ease .2s}
+.env-screen.fade-out{opacity:0;transition:opacity .3s ease}
 .env-screen.gone{display:none}
 
 /* Envelope image container — FULL SCREEN */
@@ -70,7 +70,7 @@ body{background:var(--bg-outer);font-family:'Nunito',sans-serif;color:var(--text
 
 
 /* Main page hidden until envelope opens */
-.page-content{opacity:0;transition:opacity .6s ease}
+.page-content{opacity:0;transition:opacity .3s ease}
 .page-content.show{opacity:1}
 
 /* Main cream panel */
@@ -494,17 +494,21 @@ function openEnvelope() {
   envWrap.classList.add('open');
   envScreen.classList.add('opening');
 
-  // 2. Fade out envelope, show invitation
+  // 2. Show invitation immediately as parts fly away
+  setTimeout(() => {
+    pageContent.classList.add('show');
+    document.documentElement.classList.add('unlocked');
+  }, 800);
+
+  // 3. Fade out envelope overlay
   setTimeout(() => {
     envScreen.classList.add('fade-out');
-    document.documentElement.classList.add('unlocked');
-    pageContent.classList.add('show');
-  }, 2400);
+  }, 1600);
 
-  // 3. Remove
+  // 4. Remove
   setTimeout(() => {
     envScreen.classList.add('gone');
-  }, 3200);
+  }, 2000);
 }
 
 document.addEventListener('DOMContentLoaded',()=>{
