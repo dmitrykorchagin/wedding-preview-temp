@@ -47,14 +47,15 @@ body{background:var(--bg-outer);font-family:'Nunito',sans-serif;color:var(--text
 /* Right fold — full height right half */
 .env-fold-r{top:0;right:0;width:50%;z-index:3}
 
-/* Seal — lower, on the flap fold edge */
+/* Seal — anchored to top edge of body image, not screen */
 .env-seal{
-  position:absolute;top:55%;left:50%;
+  position:absolute;left:50%;
   transform:translate(-50%,-50%);
   width:clamp(100px,28vw,130px);z-index:10;
   filter:drop-shadow(0 4px 16px rgba(0,0,0,.3));
   transition:transform 2s cubic-bezier(.4,0,.2,1);
 }
+/* Position will be set by JS based on body image top edge */
 
 /* Open states — parts fly off screen */
 .env-wrap.open .env-flap{transform:translateY(-120vh)}
@@ -510,6 +511,18 @@ function openEnvelope() {
     envScreen.classList.add('gone');
   }, 2000);
 }
+
+// Position seal at top edge of body image
+function positionSeal(){
+  const body=document.querySelector('.env-body');
+  const seal=document.querySelector('.env-seal');
+  if(body&&seal){
+    const bodyTop=body.getBoundingClientRect().top;
+    seal.style.top=bodyTop+'px';
+  }
+}
+window.addEventListener('load',positionSeal);
+window.addEventListener('resize',positionSeal);
 
 document.addEventListener('DOMContentLoaded',()=>{
 
