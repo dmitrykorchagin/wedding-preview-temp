@@ -101,10 +101,20 @@ body.loaded{opacity:1}
 .timeline-line{
   position:absolute;left:24px;top:0;bottom:0;width:40px;
 }
-.timeline-dot{
-  width:10px;height:10px;background:var(--red);border-radius:50%;
-  position:absolute;left:-38px;top:8px;z-index:3;
-  box-shadow:0 0 0 3px var(--cream),0 0 0 5px var(--red);
+/* Timeline dots removed — replaced by animated ring traveling down the line */
+.timeline-dot{display:none}
+
+/* Ring that slides down the timeline */
+.timeline-ring{
+  position:absolute;left:14px;top:0;z-index:10;
+  width:20px;height:20px;
+  animation:slideDown 8s ease-in-out infinite;
+}
+@keyframes slideDown{
+  0%{top:0;opacity:0}
+  5%{opacity:1}
+  95%{opacity:1}
+  100%{top:calc(100% - 24px);opacity:0}
 }
 
 /* Countdown oval frame */
@@ -267,14 +277,17 @@ body.loaded{opacity:1}
     </h3>
 
     <div style="position:relative;padding-left:56px;min-height:500px">
-      <!-- Wavy vertical line — more organic/hand-drawn -->
+      <!-- Wavy vertical line — organic hand-drawn thread -->
       <svg style="position:absolute;left:20px;top:0;width:50px;height:100%;overflow:visible" preserveAspectRatio="none">
-        <path d="M22 0 C16 30 30 50 24 80 C18 110 32 130 26 160 C20 190 34 210 22 240 C14 270 30 290 24 320 C18 350 28 380 22 410 C16 440 30 460 24 490 C18 510 26 530 22 560" fill="none" stroke="#8B1A1A" stroke-width="2.5" stroke-linecap="round" vector-effect="non-scaling-stroke" opacity=".7"/>
-        <!-- Small decorative loops/knots on the line -->
-        <circle cx="24" cy="80" r="4" fill="none" stroke="#8B1A1A" stroke-width="1.5" opacity=".5"/>
-        <circle cx="22" cy="240" r="3" fill="none" stroke="#8B1A1A" stroke-width="1.5" opacity=".5"/>
-        <circle cx="24" cy="410" r="4" fill="none" stroke="#C41E3A" stroke-width="1.5" opacity=".4"/>
+        <path d="M24 0 C18 30 30 50 24 80 C18 110 32 130 26 160 C20 190 34 210 22 240 C14 270 30 290 24 320 C18 350 28 380 22 410 C16 440 30 460 24 490 C18 510 26 530 22 560" fill="none" stroke="#8B1A1A" stroke-width="2" stroke-linecap="round" vector-effect="non-scaling-stroke" opacity=".5"/>
       </svg>
+      <!-- Animated ring sliding down the thread -->
+      <div class="timeline-ring">
+        <svg width="20" height="20" viewBox="0 0 20 20">
+          <circle cx="10" cy="10" r="7" fill="none" stroke="#C41E3A" stroke-width="2"/>
+          <circle cx="10" cy="10" r="4" fill="none" stroke="#8B1A1A" stroke-width="1.5" opacity=".6"/>
+        </svg>
+      </div>
 
       <!-- Event 1 -->
       <div style="position:relative;margin-bottom:40px">
